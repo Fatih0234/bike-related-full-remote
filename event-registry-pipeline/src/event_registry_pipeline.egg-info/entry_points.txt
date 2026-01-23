@@ -1,0 +1,2 @@
+[console_scripts]
+erp = erp.cli.main:app

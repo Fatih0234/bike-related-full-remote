@@ -1,0 +1,30 @@
+name: ingest-cron
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ingest-cron
+  cancel-in-progress: true
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run ingestion
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPEN311_BASE_URL: ${{ secrets.OPEN311_BASE_URL }}
+        run: |
+          uv run erp ingest run --since 2026-01-01 --until 2026-01-07

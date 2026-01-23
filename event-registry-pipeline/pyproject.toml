@@ -1,0 +1,45 @@
+[project]
+name = "event-registry-pipeline"
+version = "0.1.0"
+description = "Unified ingestion and labeling pipeline for Cologne Open311 events."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27.0",
+    "orjson>=3.9.15",
+    "psycopg[binary]>=3.1.18",
+    "pydantic>=2.6.0",
+    "pydantic-settings>=2.2.1",
+    "python-dotenv>=1.0.1",
+    "rich>=13.7.0",
+    "typer>=0.12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.9.0",
+    "pytest>=8.0.0",
+    "ruff>=0.4.0",
+]
+
+[project.scripts]
+erp = "erp.cli.main:app"
+
+[build-system]
+requires = ["setuptools>=69.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["erp*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-select = ["I"]
+
+[tool.mypy]
+python_version = "3.11"
