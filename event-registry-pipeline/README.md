@@ -74,9 +74,13 @@ This pipeline uses a 3-layer model:
     - `until = tomorrow (UTC date + 1 day)` to include “today”
     - `since = last successful pipeline_runs.fetch_window_end` (fallback: a small lookback)
 
-### Labeling (currently stubs)
-- `uv run erp phase1 run`
-- `uv run erp phase2 run`
+### Labeling (Phase 1 / Phase 2)
+- `uv run erp phase1 run --limit 200 [--dry-run]`
+- `uv run erp phase2 run --limit 200 [--dry-run]`
+
+Optional overrides:
+- `--prompt-version p1_v006` / `--prompt-version p2_v001` (defaults from env)
+- `--model-id gemini-2.5-flash-lite` (default from env)
 
 ## Ingestion: step-by-step (what happens on a live run)
 

@@ -55,6 +55,17 @@ class Settings(BaseSettings):
 
     # LLM providers
     google_api_key: Optional[str] = Field(default=None, alias="GOOGLE_API_KEY")
+    gemini_model_id: str = Field(default="gemini-2.5-flash-lite", alias="GEMINI_MODEL_ID")
+    gemini_api_base_url: str = Field(
+        default="https://generativelanguage.googleapis.com/v1beta",
+        alias="GEMINI_API_BASE_URL",
+    )
+    gemini_temperature: float = Field(default=0.0, alias="GEMINI_TEMPERATURE")
+    gemini_max_output_tokens: int = Field(default=512, alias="GEMINI_MAX_OUTPUT_TOKENS")
+    labeling_sleep_seconds: float = Field(default=0.1, alias="LABELING_SLEEP_SECONDS")
+    labeling_max_retries: int = Field(default=2, alias="LABELING_MAX_RETRIES")
+    phase1_prompt_version: str = Field(default="p1_v006", alias="PHASE1_PROMPT_VERSION")
+    phase2_prompt_version: str = Field(default="p2_v001", alias="PHASE2_PROMPT_VERSION")
     openai_api_key: Optional[str] = Field(default=None, alias="OPENAI_API_KEY")
     openrouter_api_key: Optional[str] = Field(default=None, alias="OPENROUTER_API_KEY")
 

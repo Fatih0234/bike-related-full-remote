@@ -1,0 +1,39 @@
+name: label-cron
+
+on:
+  schedule:
+    - cron: "30 */6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: label-cron
+  cancel-in-progress: true
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: event-registry-pipeline
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run Phase 1 labeling
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: uv run erp phase1 run --limit 500
+
+      - name: Run Phase 2 labeling
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: uv run erp phase2 run --limit 500
+

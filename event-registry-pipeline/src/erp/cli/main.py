@@ -127,18 +127,26 @@ def ingest_backfill(
 def phase1_run(
     limit: Optional[int] = typer.Option(None, help="Max events to label"),
     dry_run: bool = typer.Option(False, help="Do not write to DB"),
+    prompt_version: Optional[str] = typer.Option(
+        None, help="Prompt version (default from PHASE1_PROMPT_VERSION)"
+    ),
+    model_id: Optional[str] = typer.Option(None, help="Model ID (default from GEMINI_MODEL_ID)"),
 ) -> None:
     """Run Phase 1 bike-related labeling."""
-    run_phase1(limit=limit, dry_run=dry_run)
+    run_phase1(limit=limit, dry_run=dry_run, prompt_version=prompt_version, model_id=model_id)
 
 
 @phase2_app.command("run")
 def phase2_run(
     limit: Optional[int] = typer.Option(None, help="Max events to label"),
     dry_run: bool = typer.Option(False, help="Do not write to DB"),
+    prompt_version: Optional[str] = typer.Option(
+        None, help="Prompt version (default from PHASE2_PROMPT_VERSION)"
+    ),
+    model_id: Optional[str] = typer.Option(None, help="Model ID (default from GEMINI_MODEL_ID)"),
 ) -> None:
     """Run Phase 2 issue categorization."""
-    run_phase2(limit=limit, dry_run=dry_run)
+    run_phase2(limit=limit, dry_run=dry_run, prompt_version=prompt_version, model_id=model_id)
 
 
 @db_app.command("check")
