@@ -20,7 +20,7 @@ The part before `-` is the sequence number. The part after `-` is the year.
 2. Fetch a recent date window from the API to discover the latest available
    sequence for the same year (the maximum observed in that window).
 3. If the API max sequence is higher than the stored sequence, fetch each
-   missing ID directly:
+   missing ID directly (bounded by `INGESTION_GAP_FILL_LIMIT`):
 
    `/requests/{sequence}-{year}.json`
 
@@ -37,4 +37,5 @@ The part before `-` is the sequence number. The part after `-` is the year.
 Fetch and ingest IDs `35-2026` through `100-2026` directly.
 
 This ensures all new events are captured, even when date-based queries omit
-records.
+records. Use `INGESTION_ENABLE_GAP_FILL` to toggle and `INGESTION_GAP_FILL_LIMIT`
+to cap the number of direct ID fetches per run.

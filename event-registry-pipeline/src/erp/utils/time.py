@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Tuple
+from datetime import datetime
+from typing import Optional, Tuple
 
 
 def parse_service_request_id(service_request_id: str) -> Tuple[int | None, int | None]:
@@ -15,3 +16,15 @@ def parse_service_request_id(service_request_id: str) -> Tuple[int | None, int |
         return int(year_str), int(sequence_str)
     except ValueError:
         return None, None
+
+
+def parse_requested_at(value: Optional[str]) -> Optional[datetime]:
+    """Parse Open311 requested_datetime into a datetime."""
+    if not value:
+        return None
+
+    normalized = value.replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(normalized)
+    except ValueError:
+        return None

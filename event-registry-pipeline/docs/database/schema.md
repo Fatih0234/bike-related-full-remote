@@ -10,10 +10,11 @@ LLM labels. It follows a raw -> gate -> canonical flow with append-only labels.
 Tracks each ingestion run for observability and debugging.
 
 Suggested columns:
-- `run_id` (uuid, primary key)
+- `run_id` (bigserial, primary key)
 - `started_at`, `finished_at`, `status`
 - `fetch_window_start`, `fetch_window_end`
-- `fetched_count`, `inserted_count`, `rejected_count`
+- `fetched_count`, `staged_count`, `rejected_count`
+- `inserted_count`, `updated_count`
 - `error_json` (jsonb)
 
 ### events_raw
@@ -22,9 +23,10 @@ Append-only storage of API payloads.
 
 Suggested columns:
 - `raw_id` (bigserial, primary key)
-- `run_id` (uuid, references pipeline_runs)
+-- `run_id` (bigint, references pipeline_runs)
 - `service_request_id`, `requested_at`, `service_name`
 - `lat`, `lon`, `address_string`, `status`
+- `media_path` (relative file path)
 - `payload` (jsonb, full API response)
 - `created_at`
 
@@ -33,10 +35,10 @@ Suggested columns:
 Quarantine for records that fail the quality gate.
 
 Suggested columns:
-- `reject_id` (bigserial, primary key)
-- `raw_id` (references events_raw)
+- `raw_id` (primary key, references events_raw)
 - `run_id`
 - `service_request_id`
+- `accepted` (boolean; true for accepted-but-review warnings)
 - `reject_reason` (text)
 - `reject_details` (jsonb)
 - `created_at`
@@ -47,11 +49,12 @@ Canonical, stable events table. One row per `service_request_id`.
 
 Suggested columns:
 - `service_request_id` (primary key)
-- `title`, `description`, `requested_at`, `status`
+- `title`, `description`, `description_redacted`, `requested_at`, `status`
 - `lat`, `lon`, `address_string`
 - `service_name`, `category`, `subcategory`, `subcategory2`
 - `media_path`, `year`, `sequence_number`
-- `has_description`, `skip_llm`
+- `media_path`, `year`, `sequence_number`
+- `has_description`, `has_media`, `skip_llm`, `is_link_only`, `is_flagged_abuse`
 - `first_seen_at`, `last_seen_at`, `last_run_id`
 
 Recommended indexes:

@@ -2,7 +2,7 @@
 
 ## Cron strategy
 
-- Schedule ingestion every 3h or 6h depending on API stability.
+- Schedule ingestion every 6h (start conservative; tighten later if needed).
 - Use a single workflow with a concurrency group to avoid overlap.
 - Always write `pipeline_runs` for observability.
 
@@ -27,5 +27,13 @@ concurrency:
 1. Checkout repo
 2. Install uv
 3. `uv sync`
-4. `uv run erp ingest run --since ... --until ...`
+4. `uv run erp ingest auto`
 5. Upload logs (if stored locally)
+
+## Notes on date windows
+
+The Open311 endpoint is date-based. For “include today”, `erp ingest auto` sets:
+- `until = tomorrow` (UTC date + 1 day)
+- `since = last successful run’s fetch_window_end` (or a small fallback lookback)
+
+You can also run manual windows via `erp ingest run --since ... --until ...`.

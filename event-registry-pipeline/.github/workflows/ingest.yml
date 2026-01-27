@@ -1,0 +1,37 @@
+name: ingest-cron
+
+on:
+  schedule:
+    # Every 6 hours (UTC). Adjust as needed.
+    - cron: "17 */6 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: ingest-cron
+  cancel-in-progress: true
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      LOG_LEVEL: INFO
+      RUN_ENV: github_actions
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: DB connectivity check
+        run: uv run erp db check
+
+      - name: Ingest (auto window)
+        run: uv run erp ingest auto
+

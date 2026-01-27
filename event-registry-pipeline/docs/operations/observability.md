@@ -15,8 +15,9 @@
 ## Recommended metrics
 
 - fetched_count
-- raw_inserted_count
+- staged_count
 - rejected_count
-- canonical_upserted_count
-- missing_id_404_count
+- inserted_count
+- updated_count
+- duration_seconds
 - duration_seconds

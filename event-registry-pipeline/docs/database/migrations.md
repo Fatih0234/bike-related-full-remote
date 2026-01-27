@@ -11,6 +11,31 @@ direct Postgres connection.
 psql "$DATABASE_URL" -f scripts/bootstrap_db.sql
 ```
 
+## Incremental migrations
+
+If your database already uses the expanded schema (raw/rejected/canonical +
+labels), you may need to apply incremental migration scripts. The files in
+`scripts/migrations/` add columns and indexes that may be missing in older schemas.
+
+### Migration list
+
+| Migration | Description |
+|-----------|-------------|
+| `001_add_pipeline_run_counts.sql` | Adds `inserted_count` and `updated_count` to `pipeline_runs` |
+| `002_add_event_flags.sql` | Adds `has_media` and `is_link_only` to `events` |
+| `003_add_events_rejected_srid.sql` | Adds `service_request_id` column to `events_rejected` for easier debugging |
+| `006_add_events_rejected_accepted.sql` | Adds `accepted` flag to `events_rejected` to separate rejects vs warnings |
+
+### Apply migrations
+
+```bash
+# Apply all migrations in order
+psql "$DATABASE_URL" -f scripts/migrations/001_add_pipeline_run_counts.sql
+psql "$DATABASE_URL" -f scripts/migrations/002_add_event_flags.sql
+psql "$DATABASE_URL" -f scripts/migrations/003_add_events_rejected_srid.sql
+psql "$DATABASE_URL" -f scripts/migrations/006_add_events_rejected_accepted.sql
+```
+
 ## Migration workflow (planned)
 
 1. Create new migration under `migrations/` with a numeric prefix.

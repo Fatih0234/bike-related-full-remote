@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta, timezone, datetime
 from typing import Optional
 
 import typer
@@ -10,6 +10,7 @@ import typer
 from erp.config import Settings
 from erp.db.client import db_cursor
 from erp.ingestion.runner import run_ingestion
+from erp.utils.time import parse_requested_at
 from erp.labeling.phase1.runner import run as run_phase1
 from erp.labeling.phase2.runner import run as run_phase2
 from erp.utils.logging import configure_logging, get_logger
@@ -41,9 +42,68 @@ def ingest_run(
     since: str = typer.Option(..., help="Start date (YYYY-MM-DD)"),
     until: str = typer.Option(..., help="End date (YYYY-MM-DD)"),
     dry_run: bool = typer.Option(False, help="Do not write to DB"),
+    gap_fill_limit: Optional[int] = typer.Option(
+        None, help="Max gap-fill IDs to fetch (overrides env)"
+    ),
+    no_gap_fill: bool = typer.Option(False, help="Disable gap-fill for this run"),
 ) -> None:
     """Run ingestion for a date window."""
-    run_ingestion(since=since, until=until, dry_run=dry_run)
+    run_ingestion(
+        since=since,
+        until=until,
+        dry_run=dry_run,
+        gap_fill_limit=gap_fill_limit,
+        enable_gap_fill=not no_gap_fill,
+    )
+
+
+@ingest_app.command("auto")
+def ingest_auto(
+    dry_run: bool = typer.Option(False, help="Do not write to DB"),
+    lookback_days: int = typer.Option(
+        2, help="Fallback lookback when no successful runs exist"
+    ),
+    no_gap_fill: bool = typer.Option(False, help="Disable gap-fill for this run"),
+    gap_fill_limit: Optional[int] = typer.Option(
+        None, help="Max gap-fill IDs to fetch (overrides env)"
+    ),
+) -> None:
+    """Run ingestion using a DB-derived window (for cron)."""
+    settings = Settings()
+
+    until_date = (datetime.now(timezone.utc).date() + timedelta(days=1)).isoformat()
+    since_date: str | None = None
+
+    try:
+        with db_cursor(settings) as cursor:
+            cursor.execute(
+                "select fetch_window_end from public.pipeline_runs "
+                "where status = 'success' and fetch_window_end is not null "
+                "order by finished_at desc nulls last, run_id desc limit 1"
+            )
+            row = cursor.fetchone()
+        if row and row[0]:
+            fetch_end = row[0]
+            if isinstance(fetch_end, str):
+                parsed = parse_requested_at(fetch_end)
+                fetch_end_dt = parsed if parsed is not None else None
+            else:
+                fetch_end_dt = fetch_end
+            if fetch_end_dt is not None:
+                since_date = fetch_end_dt.date().isoformat()
+    except Exception as exc:
+        logger.warning("ingest.auto.last_success_lookup_failed: %s", exc)
+
+    if since_date is None:
+        since_date = (datetime.now(timezone.utc).date() - timedelta(days=lookback_days)).isoformat()
+
+    run_ingestion(
+        since=since_date,
+        until=until_date,
+        dry_run=dry_run,
+        gap_fill_limit=gap_fill_limit,
+        enable_gap_fill=not no_gap_fill,
+    )
 
 
 @ingest_app.command("backfill")
@@ -84,7 +144,8 @@ def db_check() -> None:
             cursor.execute("select 1")
             logger.info("db.check.ok")
     except Exception as exc:
-        logger.error("db.check.failed", extra={"error": str(exc)})
+        logger.error("db.check.failed: %s", exc)
+        typer.echo(f"Database check failed: {exc}", err=True)
         raise typer.Exit(1)
 
 

@@ -141,6 +141,7 @@ Important behavior:
 Quality flags:
 
 - has_description: true if description has real text
+- has_media: true if media_path exists
 - skip_llm: true if we should not send to LLM (e.g., no description)
 - is_link_only, is_flagged_abuse: optional flags to control processing
 
