@@ -25,17 +25,28 @@ def complete_run_success(
     rejected_count: int,
     inserted_count: int,
     updated_count: int,
+    first_accepted_service_request_id: str | None = None,
+    last_accepted_service_request_id: str | None = None,
+    min_accepted_requested_at: object | None = None,
+    max_accepted_requested_at: object | None = None,
 ) -> None:
     cursor.execute(
         "update pipeline_runs set status = 'success', finished_at = now(), "
         "fetched_count = %s, staged_count = %s, rejected_count = %s, "
-        "inserted_count = %s, updated_count = %s where run_id = %s",
+        "inserted_count = %s, updated_count = %s, "
+        "first_accepted_service_request_id = %s, last_accepted_service_request_id = %s, "
+        "min_accepted_requested_at = %s, max_accepted_requested_at = %s "
+        "where run_id = %s",
         (
             fetched_count,
             staged_count,
             rejected_count,
             inserted_count,
             updated_count,
+            first_accepted_service_request_id,
+            last_accepted_service_request_id,
+            min_accepted_requested_at,
+            max_accepted_requested_at,
             run_id,
         ),
     )

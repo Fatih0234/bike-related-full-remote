@@ -25,6 +25,7 @@ labels), you may need to apply incremental migration scripts. The files in
 | `002_add_event_flags.sql` | Adds `has_media` and `is_link_only` to `events` |
 | `003_add_events_rejected_srid.sql` | Adds `service_request_id` column to `events_rejected` for easier debugging |
 | `006_add_events_rejected_accepted.sql` | Adds `accepted` flag to `events_rejected` to separate rejects vs warnings |
+| `007_add_pipeline_run_ranges.sql` | Adds first/last accepted IDs + min/max accepted requested_at to `pipeline_runs` |
 
 ### Apply migrations
 
@@ -34,6 +35,7 @@ psql "$DATABASE_URL" -f scripts/migrations/001_add_pipeline_run_counts.sql
 psql "$DATABASE_URL" -f scripts/migrations/002_add_event_flags.sql
 psql "$DATABASE_URL" -f scripts/migrations/003_add_events_rejected_srid.sql
 psql "$DATABASE_URL" -f scripts/migrations/006_add_events_rejected_accepted.sql
+psql "$DATABASE_URL" -f scripts/migrations/007_add_pipeline_run_ranges.sql
 ```
 
 ## Migration workflow (planned)

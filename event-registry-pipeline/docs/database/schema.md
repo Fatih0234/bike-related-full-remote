@@ -15,6 +15,8 @@ Suggested columns:
 - `fetch_window_start`, `fetch_window_end`
 - `fetched_count`, `staged_count`, `rejected_count`
 - `inserted_count`, `updated_count`
+- `first_accepted_service_request_id`, `last_accepted_service_request_id`
+- `min_accepted_requested_at`, `max_accepted_requested_at`
 - `error_json` (jsonb)
 
 ### events_raw

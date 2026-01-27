@@ -19,6 +19,10 @@ create table if not exists public.pipeline_runs (
   rejected_count int not null default 0,
   phase1_enqueued int not null default 0,
   phase2_enqueued int not null default 0,
+  first_accepted_service_request_id varchar(20),
+  last_accepted_service_request_id varchar(20),
+  min_accepted_requested_at timestamptz,
+  max_accepted_requested_at timestamptz,
   error_json jsonb
 );
 

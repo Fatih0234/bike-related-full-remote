@@ -106,6 +106,24 @@ def run_ingestion(
         if run_id_db is None:
             raise ValueError("run_id missing for database write")
 
+        accepted_events = [a.normalized for a in accepts if a.normalized is not None]
+        if accepted_events:
+            first_event = min(accepted_events, key=lambda e: (e.year or 0, e.sequence_number or 0))
+            last_event = max(accepted_events, key=lambda e: (e.year or 0, e.sequence_number or 0))
+            first_accepted_srid = first_event.service_request_id
+            last_accepted_srid = last_event.service_request_id
+
+            accepted_requested_ats = [
+                e.requested_at for e in accepted_events if e.requested_at is not None
+            ]
+            min_accepted_requested_at = min(accepted_requested_ats) if accepted_requested_ats else None
+            max_accepted_requested_at = max(accepted_requested_ats) if accepted_requested_ats else None
+        else:
+            first_accepted_srid = None
+            last_accepted_srid = None
+            min_accepted_requested_at = None
+            max_accepted_requested_at = None
+
         with db_cursor(settings) as cursor:
             raw_result = write_raw(run_id_db, raw_events, cursor=cursor)
             write_rejected(
@@ -129,6 +147,10 @@ def run_ingestion(
                 rejected_count=true_reject_count,
                 inserted_count=upsert_result.inserted,
                 updated_count=upsert_result.updated,
+                first_accepted_service_request_id=first_accepted_srid,
+                last_accepted_service_request_id=last_accepted_srid,
+                min_accepted_requested_at=min_accepted_requested_at,
+                max_accepted_requested_at=max_accepted_requested_at,
             )
 
         logger.info(

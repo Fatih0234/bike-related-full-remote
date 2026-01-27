@@ -19,5 +19,8 @@
 - rejected_count
 - inserted_count
 - updated_count
-- duration_seconds
-- duration_seconds
+- first_accepted_service_request_id
+- last_accepted_service_request_id
+- min_accepted_requested_at
+- max_accepted_requested_at
+- duration_seconds (compute from started_at/finished_at)
