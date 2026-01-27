@@ -71,7 +71,8 @@ def ingest_auto(
     """Run ingestion using a DB-derived window (for cron)."""
     settings = Settings()
 
-    until_date = (datetime.now(timezone.utc).date() + timedelta(days=1)).isoformat()
+    today = datetime.now(timezone.utc).date()
+    until_date = (today + timedelta(days=1)).isoformat()
     since_date: str | None = None
 
     try:
@@ -90,12 +91,16 @@ def ingest_auto(
             else:
                 fetch_end_dt = fetch_end
             if fetch_end_dt is not None:
-                since_date = fetch_end_dt.date().isoformat()
+                # `erp ingest auto` uses an "until = tomorrow" policy (date-only API).
+                # If this command runs more than once per day, the previous run's
+                # fetch_window_end can be tomorrow, which would incorrectly push
+                # `since` into the future. Clamp to today to keep the window sane.
+                since_date = min(fetch_end_dt.date(), today).isoformat()
     except Exception as exc:
         logger.warning("ingest.auto.last_success_lookup_failed: %s", exc)
 
     if since_date is None:
-        since_date = (datetime.now(timezone.utc).date() - timedelta(days=lookback_days)).isoformat()
+        since_date = (today - timedelta(days=lookback_days)).isoformat()
 
     run_ingestion(
         since=since_date,

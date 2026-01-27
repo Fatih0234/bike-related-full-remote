@@ -26,8 +26,8 @@ concurrency:
 
 1. Checkout repo
 2. Install uv
-3. `uv sync`
-4. `uv run erp ingest auto`
+3. `cd event-registry-pipeline && uv sync`
+4. `cd event-registry-pipeline && uv run erp ingest auto`
 5. Upload logs (if stored locally)
 
 ## Notes on date windows

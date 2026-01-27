@@ -29,5 +29,4 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           OPEN311_BASE_URL: ${{ secrets.OPEN311_BASE_URL }}
-        run: |
-          uv run erp ingest run --since 2026-01-01 --until 2026-01-07
+        run: uv run erp ingest auto

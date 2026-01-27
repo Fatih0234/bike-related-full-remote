@@ -129,7 +129,7 @@ Gap fill computes missing IDs between:
 
 ## Running on GitHub Actions (cron)
 
-This repo includes a cron workflow: `event-registry-pipeline/.github/workflows/ingest.yml`
+This repo includes a cron workflow: `.github/workflows/ingest-cron.yml`
 
 ### Required GitHub secrets
 - `DATABASE_URL` (Supabase Postgres connection string)
