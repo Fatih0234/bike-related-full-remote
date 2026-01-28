@@ -78,6 +78,10 @@ This pipeline uses a 3-layer model:
 - `uv run erp phase1 run --limit 200 [--dry-run]`
 - `uv run erp phase2 run --limit 200 [--dry-run]`
 
+Default behavior:
+- Phase 1 labels only events that have **no existing Phase 1 label row**.
+- Phase 2 labels only events that have **no existing Phase 2 label row** (and are bike-related per latest Phase 1).
+
 Optional overrides:
 - `--prompt-version p1_v006` / `--prompt-version p2_v001` (defaults from env)
 - `--model-id gemini-2.5-flash-lite` (default from env)

@@ -24,10 +24,8 @@ Phase 1 selects from `public.events` where:
 
 - `skip_llm = false`
 - `has_description = true`
-- no existing row in `public.event_phase1_labels` for the same:
-  - `service_request_id`
-  - `prompt_version`
-  - `input_hash`
+- **no existing row in `public.event_phase1_labels` for that `service_request_id`**
+  (i.e., by default it only labels events that have never been Phase-1-labeled at all).
 
 ### UNCERTAIN handling
 
@@ -43,7 +41,7 @@ Phase 2 labels only events where the **latest** Phase 1 label has:
 
 - `bike_related = true`
 
-It also skips anything already labeled for the same `(service_request_id, prompt_version, input_hash)`.
+It also skips anything already Phase-2-labeled (any prompt version) for that `service_request_id`.
 
 ## CLI usage
 

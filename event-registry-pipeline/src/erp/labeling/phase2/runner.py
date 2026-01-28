@@ -47,6 +47,8 @@ def run(
 
     label_run_id: int | None = None
     rows: list[tuple[str, Optional[str], Optional[str], object, int, int]] = []
+    # Default behavior: only label events that have never received any Phase 2 label row.
+    # This prevents re-labeling the historical (legacy) dataset.
     select_sql = """
         with latest_p1 as (
           select distinct on (service_request_id)
@@ -70,8 +72,6 @@ def run(
             select 1
             from public.event_phase2_labels l
             where l.service_request_id = e.service_request_id
-              and l.prompt_version = %s
-              and l.input_hash = md5(coalesce(btrim(e.title), '') || '\n\n' || coalesce(btrim(e.description_redacted), ''))
           )
         order by e.requested_at desc
     """
@@ -92,7 +92,7 @@ def run(
             )
 
         with db_cursor(settings) as cursor:
-            cursor.execute(select_sql, (prompt_version, limit) if limit is not None else (prompt_version,))
+            cursor.execute(select_sql, (limit,) if limit is not None else ())
             rows = list(cursor.fetchall())
 
         with db_cursor(settings) as cursor:
