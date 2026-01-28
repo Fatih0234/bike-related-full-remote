@@ -1,11 +1,11 @@
 # GitHub Actions
 
-## Cron strategy
+## Orchestration strategy
 
-- Schedule ingestion every 6h (start conservative; tighten later if needed).
-- Schedule labeling every 6h (offset) to avoid overlap with ingestion.
-- Use a single workflow with a concurrency group to avoid overlap.
-- Always write `pipeline_runs` for observability.
+- `ingest-cron` runs on a 6h schedule.
+- `phase1` runs automatically after a successful `ingest-cron`.
+- `phase2` runs automatically after a successful `phase1`.
+- Each workflow has its own `concurrency` group to avoid overlapping runs.
 
 ## Secrets
 
@@ -23,11 +23,17 @@ concurrency:
   cancel-in-progress: true
 ```
 
-Labeling uses a separate group:
+Phase 1 and Phase 2 each use their own group:
 
 ```yaml
 concurrency:
-  group: label-cron
+  group: phase1
+  cancel-in-progress: true
+```
+
+```yaml
+concurrency:
+  group: phase2
   cancel-in-progress: true
 ```
 
@@ -37,8 +43,8 @@ concurrency:
 2. Install uv
 3. `cd event-registry-pipeline && uv sync`
 4. `cd event-registry-pipeline && uv run erp ingest auto`
-5. `cd event-registry-pipeline && uv run erp phase1 run --limit 500`
-6. `cd event-registry-pipeline && uv run erp phase2 run --limit 500`
+5. `cd event-registry-pipeline && uv run erp phase1 run --limit 1000`
+6. `cd event-registry-pipeline && uv run erp phase2 run --limit 1000`
 7. Upload logs (if stored locally)
 
 ## Notes on date windows

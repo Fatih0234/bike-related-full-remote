@@ -1,0 +1,37 @@
+name: phase1
+
+on:
+  workflow_run:
+    workflows: ["ingest-cron"]
+    types: [completed]
+  workflow_dispatch:
+
+concurrency:
+  group: phase1
+  cancel-in-progress: true
+
+jobs:
+  phase1:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: event-registry-pipeline
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run Phase 1 labeling
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GEMINI_MODEL_ID: gemini-2.5-flash-lite
+          PHASE1_PROMPT_VERSION: p1_v006
+        run: uv run erp phase1 run --limit 1000
+

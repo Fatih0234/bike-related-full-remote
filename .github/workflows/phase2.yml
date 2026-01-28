@@ -1,16 +1,18 @@
-name: label-cron
+name: phase2
 
 on:
-  schedule:
-    - cron: "30 */6 * * *"
+  workflow_run:
+    workflows: ["phase1"]
+    types: [completed]
   workflow_dispatch:
 
 concurrency:
-  group: label-cron
+  group: phase2
   cancel-in-progress: true
 
 jobs:
-  label:
+  phase2:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -25,15 +27,11 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Run Phase 1 labeling
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: uv run erp phase1 run --limit 500
-
       - name: Run Phase 2 labeling
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-        run: uv run erp phase2 run --limit 500
+          GEMINI_MODEL_ID: gemini-2.5-flash-lite
+          PHASE2_PROMPT_VERSION: p2_v001
+        run: uv run erp phase2 run --limit 1000
 
