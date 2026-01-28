@@ -82,6 +82,9 @@ Optional overrides:
 - `--prompt-version p1_v006` / `--prompt-version p2_v001` (defaults from env)
 - `--model-id gemini-2.5-flash-lite` (default from env)
 
+Labeling run logs:
+- `public.labeling_runs` (one row per Phase 1/Phase 2 invocation)
+
 ## Ingestion: step-by-step (what happens on a live run)
 
 Run: `erp ingest run --since ... --until ...` (without `--dry-run`)

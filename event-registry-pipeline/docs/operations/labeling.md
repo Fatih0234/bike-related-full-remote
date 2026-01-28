@@ -63,7 +63,14 @@ You can override defaults:
 - Phase 1 → `public.event_phase1_labels`
 - Phase 2 → `public.event_phase2_labels`
 
+## Run tracking
+
+Every Phase 1/Phase 2 execution writes a row to:
+
+- `public.labeling_runs`
+
+This is the labeling equivalent of `public.pipeline_runs` for ingestion.
+
 The dashboard should continue reading from:
 
 - `public.v_bike_events` (joins canonical events with latest labels)
-
