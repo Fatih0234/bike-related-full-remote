@@ -70,7 +70,7 @@ def run(
             from public.event_phase1_labels l
             where l.service_request_id = e.service_request_id
           )
-        order by e.requested_at desc
+        order by e.year asc, e.sequence_number asc, e.requested_at asc
     """
     if limit is not None:
         select_sql += " limit %s"
